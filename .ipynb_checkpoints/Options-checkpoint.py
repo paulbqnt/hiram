@@ -1,9 +1,9 @@
+from dataclasses import dataclass
+import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import norm, probplot
+from scipy.stats import norm
 from typing import Optional
-from pydantic import BaseModel
-from yahooquery import Ticker
-from typing import Dict
+from pydantic import BaseModel, Field, validate_arguments
 
 
 class BlackScholes(BaseModel):
@@ -25,15 +25,8 @@ class BlackScholes(BaseModel):
     r: float
     sigma: float
     q: Optional[float] = 0
-    yquery: Dict = Ticker(ticker)
 
-    def get_price(self):
-        return Ticker(self.ticker).summary_detail
-
-    @property
-    def currency(self):
-        return Ticker(self.ticker).summary_detail.get('AAPL').get('currency')
-
+    
     def d1(self):
         """Performs d1 computation of the Black Scholes Formula"""
         return (np.log(self.S / self.K) + (self.r - self.q + self.sigma ** 2 / 2) * self.T) / (self.sigma * np.sqrt(self.T))
@@ -48,7 +41,9 @@ class BlackScholes(BaseModel):
 
     def put_value(self):
         """Return put value"""
-        return self.K * np.exp(-self.r * self.T) * norm.cdf(-self.d2(), 0, 1) - self.S * np.exp(-self.q * self.T) * norm.cdf(-self.d1(), 0, 1)
+        return self.K * np.exp(-self.r * self.T) * norm.cdf(-self.d2(), 0, 1) - \
+            self.S * np.exp(-self.q * self.T) * \
+            norm.cdf(-self.d1(), 0, 1)
 
     def delta_call(self):
         """Return delta level of the call Option"""
