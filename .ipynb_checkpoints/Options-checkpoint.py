@@ -6,7 +6,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, validate_arguments
 
 
-class BlackScholes2(BaseModel):
+class BlackScholes(BaseModel):
     '''
     The BlackScholes object contains methods to price Options
 
