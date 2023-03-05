@@ -1,9 +1,11 @@
 import numpy as np
 from scipy.stats import norm, probplot
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from yahooquery import Ticker
 from typing import Dict
+from uuid import uuid4, UUID
+
 
 
 class BlackScholes(BaseModel):
@@ -25,7 +27,7 @@ class BlackScholes(BaseModel):
     r: float
     sigma: float
     q: Optional[float] = 0
-    yquery: Dict = Ticker(ticker)
+    id_: UUID = Field(default_factory=uuid4)
 
     def get_price(self):
         return Ticker(self.ticker).summary_detail
