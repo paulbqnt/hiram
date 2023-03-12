@@ -38,7 +38,7 @@ class Portfolio(BaseModel):
     def get_delta(self):
         """Return the delta of the Portfolio"""
         delta_port = 0
-        for key, value in self.underlyings['options'].items():
+        for value in self.underlyings['options'].values():
             delta_port += value.delta() * (value.qty * value.price)
         
         return delta_port
@@ -46,7 +46,7 @@ class Portfolio(BaseModel):
     def get_gamma(self):
         """Return the gamma of the Portfolio"""
         delta_port = 0
-        for key, value in self.underlyings['options'].items():
+        for value in self.underlyings['options'].values():
             delta_port += value.gamma() * (value.qty * value.price)
         
         return delta_port
@@ -54,7 +54,7 @@ class Portfolio(BaseModel):
     def get_vega(self):
         """Return the vega of the Portfolio"""
         delta_port = 0
-        for key, value in self.underlyings['options'].items():
+        for value in self.underlyings['options'].values():
             delta_port += value.vega() * (value.qty * value.price)
         
         return delta_port
@@ -62,7 +62,7 @@ class Portfolio(BaseModel):
     def get_rho(self):
         """Return the rho of the Portfolio"""
         delta_port = 0
-        for key, value in self.underlyings['options'].items():
+        for value in self.underlyings['options'].values():
             delta_port += value.rho() * (value.qty * value.price)
         
         return delta_port
@@ -70,7 +70,7 @@ class Portfolio(BaseModel):
     def get_theta(self):
         """Return the theta of the Portfolio"""
         delta_port = 0
-        for key, value in self.underlyings['options'].items():
+        for value in self.underlyings['options'].values():
             delta_port += value.theta() * (value.qty * value.price)
         
         return delta_port
@@ -78,7 +78,7 @@ class Portfolio(BaseModel):
     def get_option_book_value(self):
         """Return the option book position in USD"""
         delta_port = 0
-        for key, value in self.underlyings['options'].items():
+        for value in self.underlyings['options'].values():
             delta_port += (value.qty * value.price)
         
         return delta_port
