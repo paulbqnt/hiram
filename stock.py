@@ -1,19 +1,28 @@
 from datetime import datetime, timedelta
 from yahooquery import Ticker
+import pandas as pd
 from typing import Optional
-from dataclasses import dataclass
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from uuid import uuid4, UUID
+from enum import Enum
 
+class Way_stock(str, Enum):
+    long = 'long',
+    short = 'short'
 
-@dataclass
-class Stock:
+class Stock(BaseModel):
+    way: Way_stock = Way_stock.long
     ticker: str
-    hist: bool = None
-    meta_data = Dict = None
+    price: float = None
+    quantity: float = None
     id_: UUID = Field(default_factory=uuid4)
+    hist: Optional[pd.DataFrame] = None
 
-    def __post_init__(self):
-        if self.hist is None:
-            self.hist = Ticker(self.ticker).history(start=(datetime.today(
-            ) - timedelta(days=365*5)).strftime('%Y-%m-%d'), end=datetime.today().strftime('%Y-%m-%d'))
+    class Config:
+        arbitrary_types_allowed = True
+
+    def __init__(self, **data):
+        data["hist"] = Ticker(data["ticker"]).history(start=(datetime.today() - timedelta(days=365*5)).strftime("%Y-%m-%d"), end=datetime.today().strftime("%Y-%m-%d"))
+        data["price"] = data["hist"]["adjclose"][-1]
+        super().__init__(**data)
+
