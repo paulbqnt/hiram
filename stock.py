@@ -13,8 +13,8 @@ class Way_stock(str, Enum):
 class Stock(BaseModel):
     way: Way_stock = Way_stock.long
     ticker: str
-    price: float = None
-    quantity: float = None
+    price: Optional[float]= None
+    quantity: Optional[float]= None
     id_: UUID = Field(default_factory=uuid4)
     hist: Optional[pd.DataFrame] = None
 
@@ -22,7 +22,8 @@ class Stock(BaseModel):
         arbitrary_types_allowed = True
 
     def __init__(self, **data):
-        data["hist"] = Ticker(data["ticker"]).history(start=(datetime.today() - timedelta(days=365*5)).strftime("%Y-%m-%d"), end=datetime.today().strftime("%Y-%m-%d"))
+        data["hist"] = Ticker(data["ticker"]).history(start=(datetime.today() - timedelta(days=365*5)).
+                                                      strftime("%Y-%m-%d"), end=datetime.today().strftime("%Y-%m-%d"))
         data["price"] = data["hist"]["adjclose"][-1]
         super().__init__(**data)
 

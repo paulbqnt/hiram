@@ -1,11 +1,8 @@
-import numpy as np
 from typing import Optional
 from pydantic import BaseModel, Field
-from yahooquery import Ticker
-from typing import Dict, List
+from typing import Dict 
 from option import BlackScholes
 from stock import Stock
-from enum import Enum
 from uuid import uuid4, UUID
 
 class Portfolio(BaseModel):
@@ -35,7 +32,7 @@ class Portfolio(BaseModel):
     def add_hedge(self, entry) -> None:
         self.underlyings["hedge"][entry.id_] = entry
     
-    def get_delta(self) -> float:
+    def get_delta(self) -> dict:
         temp_dict_delta = {}
         for option in self.underlyings["options"].values():
             if option.stock == None:
@@ -57,6 +54,8 @@ class Portfolio(BaseModel):
                                 temp_dict_delta[key] += (stock.price * stock.quantity)
 
         return temp_dict_delta
+
+
 
     
     def get_gamma(self) -> float:
@@ -100,7 +99,7 @@ class Portfolio(BaseModel):
         return book_value
     
     
-    def get_info(self) -> str:
+    def get_info(self): 
         """Return generic information about the portfolio"""
         
         print(f"The book value: {self.get_option_book_value()}")
