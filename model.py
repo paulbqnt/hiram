@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from uuid import uuid4, UUID
 import numpy as np
+from option import VanillaOption
 from scipy.stats import norm
 from typing import Optional
 from enum import Enum
@@ -23,64 +24,298 @@ class BlackScholesModel(BaseModel):
             delta = np.exp(-self.r * t) * norm.cdf(d1) * qty
             rho = k * t * np.exp(-self.r * t) * norm.pdf(d2)
             theta = qty * - self.spot * norm.pdf(d1) * self.sigma / ( 2 * np.sqrt(t)) - self.r * k * np.exp(-self.r * t)* norm.cdf(d2)
+            
 
         elif way == "put":
             value = k * np.exp(-self.r * t) * norm.cdf(-d2) - self.spot * norm.cdf(-d1)
             delta = np.exp(-self.r * t) * (norm.cdf(d1) - 1) * qty
             rho = qty * -k * t * np.exp(-self.r * t) * norm.pdf(-d2)
             theta = qty * - self.spot * norm.pdf(d1) * self.sigma / ( 2 * np.sqrt(t)) + self.r * k * np.exp(-self.r * t)* norm.cdf(-d2) / 365
-        
+
         gamma = norm.pdf(d1) / (self.spot * self.sigma * np.sqrt(t)) * qty
         vega = self.spot * np.sqrt(t) * norm.pdf(d1) * 0.01 * qty
 
         return {
             "spot": self.spot,
-            "r": self.r,
-            "q": qty,
-            "sigma": self.sigma,
             "strike": k,
             "maturity": t,
-            "value": value,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
             "delta": delta,
             "gamma": gamma,
             "vega": vega,
             "theta": theta,
             "rho": rho,
+            "way": way,
             "model": "BlackScholes",
             "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-    
+
     def pricer_asian(self, t, way, k, b):
+        """Geometric Average-Rate Options | Haug 1997"""
         sigma_a = self.sigma / np.sqrt(3)
         b_a = 1 / 2 * (b - (self.sigma ** 2 / 6))
         d1 = (np.log(self.spot / k) + (b_a + sigma_a ** 2 / 2) * t) / (sigma_a * np.sqrt(t))
         d2 = d1 - (sigma_a * np.sqrt(t))
-    
+
         if way =="call":
-            price = self.spot * np.exp((b_a - self.r) * t) * norm.cdf(d1) - k * np.exp(-self.r * t) * norm.cdf(d2)
-            return price
+            value = self.spot * np.exp((b_a - self.r) * t) * norm.cdf(d1) - k * np.exp(-self.r * t) * norm.cdf(d2)
+
         if way == "put":
-            price = k * np.exp(-self.r * t) * norm.cdf(-d2) - self.spot * np.exp((b_a - self.r) * t) * norm.cdf(-d1) 
-            return price
+            value = k * np.exp(-self.r * t) * norm.cdf(-d2) - self.spot * np.exp((b_a - self.r) * t) * norm.cdf(-d1)
+       
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
 
 
-
-    
     def pricer_binary(self, t, way, k):
         d1 = (np.log(self.spot / k) + (self.r + self.sigma ** 2 / 2) * t) / (self.sigma * np.sqrt(t))
         d2 = d1 - (self.sigma * np.sqrt(t))
-        if way == "call_cash_or_nothing":
-            return {"price": np.exp(-self.r * t) * norm.cdf(d2)}
         
-        elif way == "put_cash_or_nothing":
-            return {"price": np.exp(-self.r * t) * norm.cdf(-d2)}
-        
-        elif way == "call_asset_or_nothing":
-            return {"price": self.spot * np.exp(-self.q * t) * norm.cdf(d1)}
-        
-        elif way == "put_asset_or_nothing":
-            return {"price": self.spot * np.exp(-self.q * t) * norm.cdf(-d1)}
+        if way == "call":
+            value = np.exp(-self.r * t) * norm.cdf(d2)
+            delta = (np.exp(-self.r * (t)) * norm.pdf(d2)) / (self.sigma * self.spot * np.sqrt(t))
+            gamma = - (np.exp(-self.r * t) * d1 * norm.pdf(d2)) / ((self.sigma ** 2) * (self.spot ** 2) * t)
+            theta = self.r * np.exp(-self.r * t) * norm.cdf(d2) + np.exp(-self.r * t) * norm.pdf(d2)
+            vega = -np.exp(-self.r * t) * norm.pdf(d2) * (d1 / self.sigma)
+            rho = - t * np.exp(-self.r * (t)) * norm.cdf(d2) + (np.sqrt(t)/self.sigma) * np.exp(-self.r * t) * norm.pdf(d2)
 
+        if way == "put":
+            value = np.exp(-self.r * t) * (1 - norm.cdf(d2))
+            delta = - (np.exp(-self.r * t) * norm.pdf(d2)) / (self.sigma * self.spot * np.sqrt(t))
+            gamma = (np.exp(-self.r * t) * d1 * norm.pdf(d2)) / (self.sigma ** 2 * self.spot * t)
+            theta = self.r * np.exp(-self.r * t) * (1 - norm.cdf(d2)) - np.exp(-self.r * t) * norm.pdf(d2)
+            vega = np.exp(-self.r * t) * norm.pdf(d2) * (d1 / self.sigma)
+            rho = - t * np.exp(-self.r * (t)) * (1 - norm.cdf(d2)) - (np.sqrt(t)/self.sigma) * np.exp(-self.r * t) * norm.pdf(d2)
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+    
+    def pricer_straddle(self, t, way, k, qty):
+        if way == "long":
+            call = VanillaOption(k=k, t=t, style="euro", way="call")
+            put = VanillaOption(k=k, t=t, style="euro", way="put")
+            
+        if way =="short":
+            call = VanillaOption(k=k, t=t, style="euro", way="call", qty=-1)
+            put = VanillaOption(k=k, t=t, style="euro", way="put", qty=-1)
+
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        call.pricer(model=bsm)
+        put.pricer(model=bsm)
+
+
+        value = call.pricing_data["value"] + put.pricing_data["value"]
+        delta = call.pricing_data["delta"] + put.pricing_data["delta"]
+        gamma = call.pricing_data["gamma"] + put.pricing_data["gamma"]
+        vega = call.pricing_data["vega"] + put.pricing_data["vega"]
+        theta = call.pricing_data["theta"] + put.pricing_data["theta"]
+        rho = call.pricing_data["rho"] + put.pricing_data["rho"]
+
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+    
+    
+    def pricer_strangle(self, t, way, k, k2, qty):
+        if way == "long":
+            put = VanillaOption(k=k, t=t, style="euro", way="put")
+            call = VanillaOption(k=k2, t=t, style="euro", way="call")
+        if way == "short":
+            call = VanillaOption(k=k, t=t, style="euro", way="call", qty=-1)
+            put = VanillaOption(k=k, t=t, style="euro", way="put", qty=-1)            
+        
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        put.pricer(model=bsm)  
+        call.pricer(model=bsm)
+
+        value = call.pricing_data["value"] + put.pricing_data["value"]
+        delta = call.pricing_data["delta"] + put.pricing_data["delta"]
+        gamma = call.pricing_data["gamma"] + put.pricing_data["gamma"]
+        vega = call.pricing_data["vega"] + put.pricing_data["vega"]
+        theta = call.pricing_data["theta"] + put.pricing_data["theta"]
+        rho = call.pricing_data["rho"] + put.pricing_data["rho"]
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+    
+    def pricer_bull_spread(self, t, way, k, k2, qty):
+        if way == "call":
+            option1 = VanillaOption(k=k, t=t, style="euro", way="call")
+            option2 = VanillaOption(k=k2, t=t, style="euro", way="call", qty=-1)
+        if way == "put":
+            option1 = VanillaOption(k=k, t=t, style="euro", way="put")
+            option2 = VanillaOption(k=k2, t=t, style="euro", way="put", qty=-1)
+           
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        option1.pricer(model=bsm)  
+        option2.pricer(model=bsm)
+
+        value = option1.pricing_data["value"] + option2.pricing_data["value"]
+        delta = option1.pricing_data["delta"] + option2.pricing_data["delta"]
+        gamma = option1.pricing_data["gamma"] + option2.pricing_data["gamma"]
+        vega = option1.pricing_data["vega"] + option2.pricing_data["vega"]
+        theta = option1.pricing_data["theta"] + option2.pricing_data["theta"]
+        rho = option1.pricing_data["rho"] + option2.pricing_data["rho"]       
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+    def pricer_bear_spread(self, t, way, k, k2, qty):
+        if way == "call":
+            option1 = VanillaOption(k=k, t=t, style="euro", way="call", qty=-1)
+            option2 = VanillaOption(k=k2, t=t, style="euro", way="call")
+        if way == "put":
+            option1 = VanillaOption(k=k, t=t, style="euro", way="put", qty=-1)
+            option2 = VanillaOption(k=k2, t=t, style="euro", way="put")
+           
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        option1.pricer(model=bsm)  
+        option2.pricer(model=bsm)
+
+        value = option1.pricing_data["value"] + option2.pricing_data["value"]
+        delta = option1.pricing_data["delta"] + option2.pricing_data["delta"]
+        gamma = option1.pricing_data["gamma"] + option2.pricing_data["gamma"]
+        vega = option1.pricing_data["vega"] + option2.pricing_data["vega"]
+        theta = option1.pricing_data["theta"] + option2.pricing_data["theta"]
+        rho = option1.pricing_data["rho"] + option2.pricing_data["rho"]       
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+    def pricer_butterfly_spread(self, t, way, k, k2, k3, qty):
+        if way == "long":
+            option1 = VanillaOption(k=k, t=t, style="euro", way="call")
+            option2 = VanillaOption(k=k2, t=t, style="euro", way="call", qty=-1)
+            option3 = VanillaOption(k=k3, t=t, style="euro", way="call")
+
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        option1.pricer(model=bsm)  
+        option2.pricer(model=bsm)
+        option3.pricer(model=bsm)
+
+        value = option1.pricing_data["value"] + 2 * option2.pricing_data["value"] + option3.pricing_data["value"]
+        delta = option1.pricing_data["delta"] + 2 * option2.pricing_data["delta"] + option3.pricing_data["delta"]
+        gamma = option1.pricing_data["gamma"] + 2 * option2.pricing_data["gamma"] + option3.pricing_data["gamma"]
+        vega = option1.pricing_data["vega"] + 2 * option2.pricing_data["vega"] + option3.pricing_data["vega"]
+        theta = option1.pricing_data["theta"] + 2 * option2.pricing_data["theta"] + option3.pricing_data["theta"]
+        rho = option1.pricing_data["rho"] + 2 * option2.pricing_data["rho"] + option3.pricing_data["rho"]
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+
+
+class BinomialModel(BaseModel):
+    spot: float
+    r: float
+    sigma: float
+    id_: UUID = Field(default_factory=uuid4)
+
+    def pricer_vanilla(self, way, k, t, n, b):
+        dt = t / n
+        u = np.exp(self.sigma * np.sqrt(dt))
+        d = 1 / u
+        a = np.exp(b * dt)
+        p = (a - d) / (u - d)
+        df = np.exp(-self.r * dt)
+
+        for i in range(0, n):
+            option_value = np.max()
 
 class MonteCarloSimulation(BaseModel):
     spot: float
