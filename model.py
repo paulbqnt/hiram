@@ -8,6 +8,46 @@ from enum import Enum
 from datetime import datetime
 
 
+class MCEngine(BaseModel):
+    spot: float
+    r: float
+    sigma: float
+    simulations: Optional[int] = 1000000
+    epsilon: Optional[float] = 0.001
+    id_: UUID = Field(default_factory=uuid4)
+    
+    
+    def pricer_vanilla(self, t, way, k, qty):
+        np.random.seed(42)
+        option_data = np.zeros([self.simulations, 2])
+        rand = np.random.normal(0,1, [1, self.simulations])
+        stock_price = self.spot * np.exp(t * (self.r - 0.5* self.sigma ** 2) + self.sigma * np.sqrt(t) * rand)
+        option_data[:,1] = stock_price - k
+        average = np.sum(np.amax(option_data, axis = 1))/float(self.simulations)
+        value = np.exp(-1.0 * self.r * t) * average
+        
+        ###
+        
+        option_price = MCEngine(spot=100, r=0.05, sigma=0.2).pricer_vanilla(t=1, way="call", k=105, qty=1)       
+        
+        
+        
+        return {
+            "value": value
+        }
+    
+    
+        
+        
+        
+
+              
+        
+    
+
+        
+        
+                
 
 class BlackScholesModel(BaseModel):
     spot: float
@@ -116,11 +156,13 @@ class BlackScholesModel(BaseModel):
         }
     
     def pricer_straddle(self, t, way, k, qty):
-        if way == "long":
+        # if way == "long":
+        if qty >= 0:
             call = VanillaOption(k=k, t=t, style="euro", way="call")
             put = VanillaOption(k=k, t=t, style="euro", way="put")
             
-        if way =="short":
+        # if way =="short":
+        if qty <= 0:
             call = VanillaOption(k=k, t=t, style="euro", way="call", qty=-1)
             put = VanillaOption(k=k, t=t, style="euro", way="put", qty=-1)
 
@@ -156,10 +198,10 @@ class BlackScholesModel(BaseModel):
     
     
     def pricer_strangle(self, t, way, k, k2, qty):
-        if way == "long":
+        if qty >= 0:
             put = VanillaOption(k=k, t=t, style="euro", way="put")
             call = VanillaOption(k=k2, t=t, style="euro", way="call")
-        if way == "short":
+        if qty <= 0:
             call = VanillaOption(k=k, t=t, style="euro", way="call", qty=-1)
             put = VanillaOption(k=k, t=t, style="euro", way="put", qty=-1)            
         
@@ -268,6 +310,12 @@ class BlackScholesModel(BaseModel):
             option1 = VanillaOption(k=k, t=t, style="euro", way="call")
             option2 = VanillaOption(k=k2, t=t, style="euro", way="call", qty=-1)
             option3 = VanillaOption(k=k3, t=t, style="euro", way="call")
+        if qty < 0:
+            option1 = VanillaOption(k=k, t=t, style="euro", way="call", qty=-1)
+            option2 = VanillaOption(k=k2, t=t, style="euro", way="call")
+            option3 = VanillaOption(k=k3, t=t, style="euro", way="call", qty=-1)
+
+
 
         bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
         option1.pricer(model=bsm)  
@@ -297,6 +345,122 @@ class BlackScholesModel(BaseModel):
             "model": "BlackScholes",
             "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
+
+    def pricer_strip(self, t, way, k, qty):
+        
+        option1 = VanillaOption(k=k, t=t, style="euro", way="call")
+        option2 = VanillaOption(k=k, t=t, style="euro", way="put")
+
+        if qty < 0:
+            option1.qty = -1
+            option2.qty = -1
+
+
+
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        option1.pricer(model=bsm)  
+        option2.pricer(model=bsm)
+
+
+        value = option1.pricing_data["value"] + 2 * option2.pricing_data["value"] 
+        delta = option1.pricing_data["delta"] + 2 * option2.pricing_data["delta"] 
+        gamma = option1.pricing_data["gamma"] + 2 * option2.pricing_data["gamma"] 
+        vega = option1.pricing_data["vega"] + 2 * option2.pricing_data["vega"] 
+        theta = option1.pricing_data["theta"] + 2 * option2.pricing_data["theta"] 
+        rho = option1.pricing_data["rho"] + 2 * option2.pricing_data["rho"] 
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+    def pricer_strap(self, t, way, k, qty):
+        option1 = VanillaOption(k=k, t=t, style="euro", way="call")
+        option2 = VanillaOption(k=k, t=t, style="euro", way="put")
+
+        if qty < 0:
+            option1.qty = -1
+            option2.qty = -1
+
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        option1.pricer(model=bsm)  
+        option2.pricer(model=bsm)
+
+
+        value = 2 * option1.pricing_data["value"] + option2.pricing_data["value"] 
+        delta = 2 * option1.pricing_data["delta"] + option2.pricing_data["delta"] 
+        gamma = 2 * option1.pricing_data["gamma"] + option2.pricing_data["gamma"] 
+        vega = 2 * option1.pricing_data["vega"] + option2.pricing_data["vega"] 
+        theta = 2 * option1.pricing_data["theta"] + option2.pricing_data["theta"] 
+        rho = 2 * option1.pricing_data["rho"] + option2.pricing_data["rho"] 
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+    def pricer_calendar_spread(self, t, t2, way, k, qty):
+
+        option1 = VanillaOption(k=k, t=t, style="euro", way="call", qty=-1)
+        option2 = VanillaOption(k=k, t=t2, style="euro", way="call")
+
+        if qty < 0:
+            option1.qty = -1
+            option2.qty = -1
+
+        bsm = BlackScholesModel(spot=self.spot, r=self.r, sigma=self.sigma)
+        option1.pricer(model=bsm)  
+        option2.pricer(model=bsm)
+
+        value = option1.pricing_data["value"] + option2.pricing_data["value"] 
+        delta = option1.pricing_data["delta"] + option2.pricing_data["delta"] 
+        gamma = option1.pricing_data["gamma"] + option2.pricing_data["gamma"] 
+        vega = option1.pricing_data["vega"] + option2.pricing_data["vega"] 
+        theta = option1.pricing_data["theta"] + option2.pricing_data["theta"] 
+        rho = option1.pricing_data["rho"] + option2.pricing_data["rho"] 
+
+        return {
+            "spot": self.spot,
+            "strike": k,
+            "maturity": t,
+            "value": value,           
+            "sigma": self.sigma,
+            "r": self.r,
+            "delta": delta,
+            "gamma": gamma,
+            "vega": vega,
+            "theta": theta,
+            "rho": rho,
+            "way": way,
+            "model": "BlackScholes",
+            "pricing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+
 
 
 
