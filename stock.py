@@ -2,28 +2,35 @@ from datetime import datetime, timedelta
 from yahooquery import Ticker
 import pandas as pd
 from typing import Optional
-from pydantic import BaseModel, Field, validator
-from uuid import uuid4, UUID
-from enum import Enum
+
 
 class Stock:
-    def __init__(self, ticker: str = None, price: Optional[float] = None, hist: Optional[pd.DataFrame] = None):
-        self.__ticker = ticker,
-        self.__price = price,
-        self.__hist = hist
+    def __init__(self, ticker, price: Optional[float] = None, hist: Optional[pd.DataFrame] = None, **data):
+        self.ticker = ticker
+        self.price = price
+        self.hist = hist
 
-    @property
-    def ticker(self):
-        return self.__ticker
+        if 'ticker' in data:
+            self.ticker = data['ticker']
+        
+        if 'hist' in data:
+            self.hist = data['hist']
+        
+        if self.ticker is not None and self.hist is None:
+            self.hist = self._fetch_history()
+        
+        if self.hist is not None and self.price is None:
+            self.price = self.hist['adjclose'][-1]
 
-    @property
-    def price(self):
-        return self.__price
-
-    @property
-    def hist(self):
-        return self.__hist
-
-    @hist.setter
-    def hist(self, new_hist):
-        self.__strike = new_hist
+    def _fetch_history(self):
+        hist_df = Ticker(self.ticker).history(start=(datetime.today() - timedelta(days=365*5)).strftime("%Y-%m-%d"), end=datetime.today().strftime("%Y-%m-%d"))
+        return hist_df
+    
+    def historical_volatility(self):
+        pass
+    
+    def garman_klass_volatility(self):
+        pass
+    
+    def parkinson_historic_volatility(self):
+        pass
