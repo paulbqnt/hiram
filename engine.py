@@ -220,3 +220,11 @@ def StandardBarrierPricer(pricing_engine, option, data):
     expiry = option.expiry
     (spot, rate, volatility, dividend) = data.get_data()
     pass
+
+def BlackScholesPricerExotic(pricing_engine, option, data):
+    strike = option.strike
+    expiry = option.expiry
+    (spot, rate, volatility, dividend) = data.get_data()
+    d1 = (np.log(spot / strike) + (rate - dividend + 0.5 * volatility * volatility) * expiry) / (
+                volatility * np.sqrt(expiry))
+    d2 = d1 - volatility * np.sqrt(expiry)

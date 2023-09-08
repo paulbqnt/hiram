@@ -1,13 +1,20 @@
 from facade import OptionFacade
 from market_data import MarketData
-from payoff import VanillaPayoff, call_payoff
-from engine import MonteCarloPricingEngine, MonteCarloPricerVanilla
-
+from old_payoff import VanillaPayoff, call_payoff
+from engine import MonteCarloPricingEngine, MonteCarloPricerVanilla, BlackScholesPricingEngine, BlackScholesPricer
+from plot import Plot, plot_payoff_straddle
 
 if __name__ == "__main__":
-    call = VanillaPayoff(1, 100, call_payoff)
-    market_data = MarketData(100, 0.06, 0.2, 0)
-    mc_engine = MonteCarloPricingEngine(1000000, MonteCarloPricerVanilla)
-    facade = OptionFacade(call, mc_engine, market_data)
-    print(facade.price())
+
+    # Black Scholes example
+    data = MarketData(spot=45, rate=0.05, volatility=.35, dividend=0)
+    call = VanillaPayoff(expiry=.25, strike=40.0, payoff=call_payoff)
+    BS_engine = BlackScholesPricingEngine("straddle", BlackScholesPricer)
+    BS_straddle = OptionFacade(call, BS_engine, data)
+
+    test_plot = plot_payoff_straddle(BS_straddle)
+    print(test_plot)
+
+
+
 
