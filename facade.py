@@ -1,5 +1,6 @@
 from abc import ABCMeta
 
+
 class OptionFacade(object, metaclass=ABCMeta):
     """An option. -- Using Facade design pattern.  This instantiates the price method for the price engine.
     Also requires a payoff method to be used.  Requires an option, a pricing engine, and the data.

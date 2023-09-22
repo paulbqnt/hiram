@@ -8,6 +8,7 @@ class MarketData(object):
     @property
     def spot(self):
         return self.__spot
+
     @spot.setter
     def spot(self, new_spot):
         self.__spot = new_spot
@@ -19,6 +20,7 @@ class MarketData(object):
     @rate.setter
     def rate(self, new_rate):
         self.__rate = new_rate
+
     @property
     def volatility(self):
         return self.__volatility
@@ -35,10 +37,8 @@ class MarketData(object):
     def dividend(self, new_dividend):
         self.__dividend = new_dividend
 
-
     def get_data(self):
         return self.__spot, self.__rate, self.__volatility, self.__dividend
 
     def __repr__(self):
         return f"MarketData({self.__spot},{self.__rate},{self.__volatility},{self.__dividend})"
-

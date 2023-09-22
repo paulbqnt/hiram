@@ -1,8 +1,6 @@
-import facade
-import old_payoff
 from facade import OptionFacade
 from market_data import MarketData
-from old_payoff import VanillaPayoff, call_payoff, put_payoff
+from payoff import VanillaPayoff, call_payoff, put_payoff
 from engine import BlackScholesPricingEngine, BlackScholesPricer
 
 import matplotlib.pyplot as plt
@@ -52,85 +50,200 @@ def plot_payoff_vanilla(facade, type_plot):
             raise ValueError(f'"{type_plot}" is not a correct payoff type, please select one of these: black_scholes/monte_carlo')
 
 
+
+
 def plot_payoff_straddle(facade):
+    st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot) \
+
+    call_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+    put_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=put_payoff)
+
+    BS_call_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+    BS_put_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
+
+    BS_call = OptionFacade(call_temp, BS_call_engine, facade.data)
+    BS_put = OptionFacade(put_temp, BS_put_engine, facade.data)
+
+    payoff_option_call = vanilla_payoff(BS_call)
+    payoff_option_put = vanilla_payoff(BS_put)
+
+    fig, ax = plt.subplots()
+    ax.plot(st, (payoff_option_call + payoff_option_put), label='straddle payoff', color='blue')
+
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) > 0), color='green', alpha=0.25)
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) < 0), color='red', alpha=0.25)
+
+    plt.axhline(0, color='black', linewidth=1)
+    plt.ylabel('Profit and Loss')
+    plt.xlabel('spot', loc='center')
+    plt.title(f"Straddle")
+    return plt.show()
+
+
+def plot_payoff_strangle(facade):
+    st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot) \
+
+    put_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=put_payoff)
+    call_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike_2, payoff=call_payoff)
+
+    BS_put_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
+    BS_call_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+
+    BS_put = OptionFacade(put_temp, BS_put_engine, facade.data)
+    BS_call = OptionFacade(call_temp, BS_call_engine, facade.data)
+
+    payoff_option_put = vanilla_payoff(BS_put)
+    payoff_option_call = vanilla_payoff(BS_call)
+
+    fig, ax = plt.subplots()
+    ax.plot(st, (payoff_option_call + payoff_option_put), label='straddle payoff', color='blue')
+
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) > 0), color='green', alpha=0.25)
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) < 0), color='red', alpha=0.25)
+
+    plt.axhline(0, color='black', linewidth=1)
+    plt.ylabel('Profit and Loss')
+    plt.xlabel('spot', loc='center')
+    plt.title(f"Strangle")
+    return plt.show()
+
+
+def plot_payoff_bull_spread(facade):
     st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot)
 
-    def call_straddle():
-        call_temp = VanillaPayoff(expiry=.25, strike=40.0, payoff=call_payoff)
-        put_temp = VanillaPayoff(expiry=.25, strike=40.0, payoff=put_payoff)
+    option1_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+    option2_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike_2, payoff=call_payoff)
 
-        BS_call_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
-        BS_put_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
+    BS_option1_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+    BS_option2_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
 
-        BS_call = OptionFacade(call_temp, BS_call_engine, facade.data)
-        BS_put = OptionFacade(put_temp, BS_put_engine, facade.data)
+    BS_option1= OptionFacade(option1_temp, BS_option1_engine, facade.data)
+    BS_option2 = OptionFacade(option2_temp, BS_option2_engine, facade.data)
 
+    payoff_option1 = vanilla_payoff(BS_option1)
+    payoff_option2 = -vanilla_payoff(BS_option2)
 
+    fig, ax = plt.subplots()
+    ax.plot(st, payoff_option1, label='long call', color='green', linestyle="--", alpha=0.5)
+    ax.plot(st, payoff_option2, label='short call', color='red', linestyle="--", alpha=0.5)
+    ax.plot(st, (payoff_option1 + payoff_option2), label='bull spread', color='blue')
+    plt.axhline(0, color='black', linewidth=1)
 
-
-
-    return call_straddle()
-
-
-    #     st = np.arange(0.5 * Straddle.pricing_data['spot'], 1.5 * Straddle.pricing_data['spot'])
-    #
-    #     call = VanillaOption(k=Straddle.k, t=Straddle.t, style="euro", way="call")
-    #     put = VanillaOption(k=Straddle.k, t=Straddle.t, style="euro", way="put")
-    #
-    #     if Straddle.qty < 0:
-    #         Straddle.way = "short"
-    #         call.qty = -1
-    #         put.qty = -1
-    #
-    #     bsm = BlackScholesModel(spot=Straddle.pricing_data['spot'], r=Straddle.pricing_data['r'],
-    #                             sigma=Straddle.pricing_data['sigma'])
-    #     call.pricer(model=bsm)
-    #     put.pricer(model=bsm)
-    #
-    #     name = f"{Straddle.way} {Straddle.style}"
-    #
-    #     payoff_call = vanilla_payoff(call)
-    #     payoff_put = vanilla_payoff(put)
-    #
-    #     fig, ax = plt.subplots()
-    #     ax.plot(st, (payoff_put + payoff_call), label=name, color='blue')
-    #     # plt.axvline(x=100 ,ymin=0, color = 'black', linestyle="--")
-    #     ax.fill_between(st, (payoff_put + payoff_call), 0, where=((payoff_put + payoff_call) > 0), color='green',
-    #                     alpha=0.25)
-    #     ax.fill_between(st, (payoff_put + payoff_call), 0, where=((payoff_put + payoff_call) < 0), color='red',
-    #                     alpha=0.25)
-    #
-    #     plt.axhline(0, color='black', linewidth=1)
-    #     plt.ylabel('Profit and Loss')
-    #     plt.xlabel('spot', loc='center')
-    #     plt.title(f"Straddle")
-    #     plt.legend()
+    ax.fill_between(st, (payoff_option1 + payoff_option2), 0, where=((payoff_option1 + payoff_option2) > 0), color='green', alpha=0.25)
+    ax.fill_between(st, (payoff_option1 + payoff_option2), 0, where=((payoff_option1 + payoff_option2) < 0), color='red', alpha=0.25)
+    plt.ylabel('Profit and Loss')
+    plt.xlabel('spot', loc='center')
+    plt.title(f"Bull Spread")
+    plt.legend()
+    return plt.show()
 
 
+def plot_payoff_bear_spread(facade):
+    st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot) \
 
+    option1_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+    option2_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike_2, payoff=call_payoff)
 
+    BS_option1_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
+    BS_option2_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
 
+    BS_option1= OptionFacade(option1_temp, BS_option1_engine, facade.data)
+    BS_option2 = OptionFacade(option2_temp, BS_option2_engine, facade.data)
 
+    payoff_option1 = -vanilla_payoff(BS_option1)
+    payoff_option2 = vanilla_payoff(BS_option2)
 
-    # if type_plot == "monte_carlo":
-    #     st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot)
-    #     premium = facade.price().get('value')
-    #     strike = facade.option.strike
-    #     return facade.option.payoff
-    #
+    fig, ax = plt.subplots()
+    ax.plot(st, payoff_option1, label='short put', color='green', linestyle="--", alpha=0.5)
+    ax.plot(st, payoff_option2, label='long put', color='red', linestyle="--", alpha=0.5)
+    ax.plot(st, (payoff_option1 + payoff_option2), label='bear spread', color='blue')
+    plt.axhline(0, color='black', linewidth=1)
 
-    # print(payoff.VanillaPayoff.payoff)
+    ax.fill_between(st, (payoff_option1 + payoff_option2), 0, where=((payoff_option1 + payoff_option2) > 0), color='green', alpha=0.25)
+    ax.fill_between(st, (payoff_option1 + payoff_option2), 0, where=((payoff_option1 + payoff_option2) < 0), color='red', alpha=0.25)
+    plt.ylabel('Profit and Loss')
+    plt.xlabel('spot', loc='center')
+    plt.title(f"Bear Spread")
+    plt.legend()
+    return plt.show()
 
+def plot_payoff_butterfly_spread(facade):
+    st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot) \
 
-    #
-    # if Option.way == "call":
-    #     if Option.qty > 0:
-    #         return np.where(st > strike, st - strike, 0) - premium
-    #     elif Option.qty < 0:
-    #         return np.where(st > strike, strike - st, 0) + premium
-    #
-    # if Option.way == "put":
-    #     if Option.qty > 0:
-    #         return np.where(strike > st, strike - st, 0) - premium
-    #     if Option.qty < 0:
-    #         return np.where(st < strike, st - strike, 0) + premium
+    option1_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+    option2_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike_2, payoff=call_payoff)
+    option3_temp = VanillaPayoff(expiry=facade.option.expiry, strike=facade.option.strike_3, payoff=call_payoff)
+
+    BS_option1_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+    BS_option2_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+    BS_option3_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+
+    BS_option1 = OptionFacade(option1_temp, BS_option1_engine, facade.data)
+    BS_option2 = OptionFacade(option2_temp, BS_option2_engine, facade.data)
+    BS_option3 = OptionFacade(option3_temp, BS_option3_engine, facade.data)
+
+    payoff_option1 = vanilla_payoff(BS_option1)
+    payoff_option2 = -2 * vanilla_payoff(BS_option2)
+    payoff_option3 = vanilla_payoff(BS_option3)
+
+    fig, ax = plt.subplots()
+    ax.plot(st, payoff_option1, label='long call', color='green', linestyle="--", alpha=0.5)
+    ax.plot(st, payoff_option2, label='short 2 calls', color='red', linestyle="--", alpha=0.5)
+    ax.plot(st, payoff_option3, label='long call', color='orange', linestyle="--", alpha=0.5)
+    ax.plot(st, (payoff_option1 + payoff_option2 + payoff_option3), label="Butterfly Spread", color='blue')
+    plt.axhline(0, color='black', linewidth=1)
+    plt.axvline(x=100, ymin=0, color='black', linestyle="--", label="spot")
+
+    return plt.show()
+
+def plot_payoff_strip(facade):
+    st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot)
+    call_temp = VanillaPayoff(expiry=facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+    put_temp = VanillaPayoff(expiry=facade.option.expiry, strike=facade.option.strike, payoff=put_payoff)
+
+    BS_call_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+    BS_put_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
+
+    BS_call = OptionFacade(call_temp, BS_call_engine, facade.data)
+    BS_put = OptionFacade(put_temp, BS_put_engine, facade.data)
+
+    payoff_option_call = vanilla_payoff(BS_call)
+    payoff_option_put = 2 * vanilla_payoff(BS_put)
+
+    fig, ax = plt.subplots()
+    ax.plot(st, (payoff_option_call + payoff_option_put), label='straddle payoff', color='blue')
+
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) > 0), color='green', alpha=0.25)
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) < 0), color='red', alpha=0.25)
+
+    plt.axhline(0, color='black', linewidth=1)
+    plt.ylabel('Profit and Loss')
+    plt.xlabel('spot', loc='center')
+    plt.title(f"Strip")
+    return plt.show()
+
+def plot_payoff_strap(facade):
+    st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot)
+    call_temp = VanillaPayoff(expiry=facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+    put_temp = VanillaPayoff(expiry=facade.option.expiry, strike=facade.option.strike, payoff=put_payoff)
+
+    BS_call_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+    BS_put_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
+
+    BS_call = OptionFacade(call_temp, BS_call_engine, facade.data)
+    BS_put = OptionFacade(put_temp, BS_put_engine, facade.data)
+
+    payoff_option_call = 2 * vanilla_payoff(BS_call)
+    payoff_option_put = vanilla_payoff(BS_put)
+
+    fig, ax = plt.subplots()
+    ax.plot(st, (payoff_option_call + payoff_option_put), label='straddle payoff', color='blue')
+
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) > 0), color='green', alpha=0.25)
+    ax.fill_between(st, (payoff_option_call + payoff_option_put), 0, where=((payoff_option_call + payoff_option_put) < 0), color='red', alpha=0.25)
+
+    plt.axhline(0, color='black', linewidth=1)
+    plt.ylabel('Profit and Loss')
+    plt.xlabel('spot', loc='center')
+    plt.title(f"Strap")
+    return plt.show()
