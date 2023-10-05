@@ -1,62 +1,26 @@
-from pydantic import BaseModel, Field
-import numpy as np
-from stock import Stock
-from option import VanillaOption
-from scipy.stats import norm
-from typing import Optional
-from datetime import datetime
-from uuid import uuid4, UUID
+from market_data import MarketData
+from old_payoff import VanillaPayoff, call_payoff, put_payoff
+from engine import BlackScholesPricingEngine, BlackScholesPricer
+from facade import OptionFacade
 
 
+class Strategy:
 
-class Strategy(BaseModel):
-    way: str = "long"
-    k: float
-    k2: Optional[float] = None
-    k3: Optional[float] = None
-    t: float
-    t2: Optional[float] = None
-    qty: float = 1
-    price: float = 1
-    q: float = 0
-    style: str
-    stock: Optional[Stock] = None
-    id_: UUID = Field(default_factory=uuid4)
-    pricing_data: dict = {}
+    def __init__(self, option, engine, data):
+        self.option = option
+        self.engine = engine
+        self.data = data
+
+    def price(self):
+        return self.engine.calculate(self.option, self.data)
 
 
-    def pricer(self, model):
-        if self.style == "straddle":
-            self.pricing_data = model.pricer_straddle(self.t, self.way, self.k, self.qty)
-            return model.pricer_straddle(self.t, self.way, self.k, self.qty)
-        
-        if self.style == "strangle":
-            self.pricing_data = model.pricer_strangle(self.t, self.way, self.k, self.k2, self.qty)
-            return model.pricer_strangle(self.t, self.way, self.k, self.k2, self.qty)
-        
-        if self.style == "bull_spread":
-            self.pricing_data = model.pricer_bull_spread(self.t, self.way, self.k, self.k2, self.qty)
-            return model.pricer_bull_spread(self.t, self.way, self.k, self.k2, self.qty)        
-        
-        if self.style == "bear_spread":
-            self.pricing_data = model.pricer_bear_spread(self.t, self.way, self.k, self.k2, self.qty)
-            return model.pricer_bear_spread(self.t, self.way, self.k, self.k2, self.qty) 
-                       
-        if self.style == "butterfly_spread":
-            self.pricing_data = model.pricer_butterfly_spread(self.t, self.way, self.k, self.k2, self.k3, self.qty)
-            return model.pricer_butterfly_spread(self.t, self.way, self.k, self.k2, self.k3, self.qty)
+call = VanillaPayoff(1, 100, call_payoff)
+put = VanillaPayoff(1, 100, put_payoff())
+data = MarketData(100, 0.05, 0.2, 0)
+bs_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
+bs_option = OptionFacade(call, bs_engine, data)
 
-        if self.style == "strip":
-            self.pricing_data = model.pricer_strip(self.t, self.way, self.k, self.qty)
-            return model.pricer_strip(self.t, self.way, self.k, self.qty)
+def pricer_straddle(option, engine, data):
+    bs_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
 
-        if self.style == "strap":
-            self.pricing_data = model.pricer_strap(self.t, self.way, self.k, self.qty)
-            return model.pricer_strap(self.t, self.way, self.k, self.qty)
-        
-        if self.style == "calendar_spread":
-            self.pricing_data = model.pricer_calendar_spread(self.t, self.t2, self.way, self.k, self.qty)
-            return model.pricer_calendar_spread(self.t, self.t2, self.way, self.k, self.qty)
-
-        else:
-            raise ValueError("Invalid style")

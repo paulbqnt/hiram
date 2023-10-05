@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 from typing import Dict 
-from option impot VanillaOption
+from option import VanillaOption
 from stock import Stock
 from uuid import uuid4, UUID
 

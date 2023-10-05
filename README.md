@@ -1,40 +1,70 @@
-# hiram
-Hiram is a free financial library built in  python that can be used for option pricing.
+# HIRAM
+**Hiram** is a free financial library built in  python that can be used for **Equity Option Pricing**.
+
+---
+## How to use it
+
+### Let's price a Call option 
+```python 
+from facade import OptionFacade
+from market_data import MarketData
+from payoff import VanillaPayoff, call_payoff
+from engine import BlackScholesPricingEngine, BlackScholesPricer
+
+data = MarketData(spot=100, rate=0.05, volatility=.35, dividend=0)
+
+call = VanillaPayoff(expiry=.2, strike=100, payoff=call_payoff)
+
+BS_engine_call = BlackScholesPricingEngine("call", BlackScholesPricer)
+
+
+BS_call = OptionFacade(call, BS_engine_call, data)
+print(f"call: {BS_call.price()}")
+```
+### Output
+```python
+call: {'value': 6.717176287682648, 'delta': 0.550981792606417, 'gamma': 0.025231275699541374,
+       'vega': 0.17661892989678962, 'theta': -0.03563676416970135, 'rho': 0.07898638667249831}}
+```
+
 
 --- 
 
-## How to use it
+### To-Do
+- **Black Scholes**: Strategies
+  - IronCondor
+- **Portfolio Class** (add methods)
+- **Stock Class** (add methods)
+- **Plot Class**
+- **Bond Class** : Zero-Coupon Bond
+- **Black Scholes**: Asian Vanilla Options
+- **Monte Carlo**: Asian Vanilla Options
+- **Black Scholes**: Digital Options
+- **Monte Carlo**: Digital Options
+ **Black Scholes**: Barrier Options
+- **Monte Carlo**: Barrier Options
+- **Binomial Model** (American/European)
+- **Lookback Options**
+- **Chooser Options**
+- **Ratchet Options**
+--- 
 
-### Stock
+### Implemented
 
-The _Stock_ object is the basic underlying used for option pricing.
+#### Engine
+- [X] **Black Scholes**: Vanilla **Call** & **Put**  (plot :white_check_mark: )
+- [X] **Monte-Carlo**: Vanilla Call & Put (plot :white_check_mark: )
+- [X] **Black Scholes**: Strategy **Straddle** (plot :white_check_mark: )
+- [X] **Black Scholes**: Strategy **Strangle** (plot :white_check_mark: )
+- [X] **Black Scholes**: Strategy **Butterfly Spread** (plot :white_check_mark: )
+- [X] **Black Scholes**: Strategy **Strip** & **Strap** (plot :white_check_mark: )
+- [X] **Black Scholes**: Strategy **Calendar Spread**
 
-```python
-from stock import Stock
-amzn_stock = Stock(ticker="AMZN")
-```
-
-
-### VanillaOption
-
-The _VanillaOption_ object is used to represent call and put we want to price.
-
-
-```python
-from option import VanillaOption
-call = VanillaOption(way="call", k=100, t=1, style="euro")
-```
-
-### BlackScholesModel
-
-```python
-from option import VanillaOption
-from model import BlackScholesModel
-call = VanillaOption(way="call", k=100, t=1, style="euro")
-bsm = BlackScholesModel(spot=100, r=0.05, sigma=0.3)
-
-# to price the option
-call.pricer(bsm)
-```
-
+#### Stock
+##### Methods
+- [X] **fetch history**
+- [X] **historical volatility**
+- [X] **parkinson historic volatility**
+- [X] **rogers satchel volatility**
+- [X] **yang zhang volatility**
 
