@@ -1,0 +1,3 @@
+- replace volume by USD Volume
+- add equity ratios
+- add Facade pricing
