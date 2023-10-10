@@ -6,5 +6,5 @@ setup(
    author='Paul Boquant',
    author_email='paul@boquant.net',
    packages=['hiram'],  #same as name
-   install_requires=['wheel', 'bar', 'greek'], #external packages as dependencies
+   install_requires=['pandas', 'numpy', 'yfinance', 'streamlit'], #external packages as dependencies
 )
