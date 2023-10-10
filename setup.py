@@ -15,3 +15,4 @@ setup(
     python_requires=">=3.10",
     packages=find_packages(),
     install_requires=['pandas', 'numpy', 'yfinance', 'scipy', 'plotly', 'matplotlib', 'yahooquery']
+)
