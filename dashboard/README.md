@@ -1,3 +1,0 @@
-- replace volume by USD Volume
-- add equity ratios
-- change on_change feature of ticker box to react only to "enter"
