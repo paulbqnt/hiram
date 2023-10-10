@@ -12,7 +12,7 @@ setup(
     author="paulbqnt (Paul Boquant)",
     email="paul@boquant.net",
     license="MIT",
-    python_requires=">=3.10",
+    python_requires=">=3.9",
     packages=find_packages(),
     install_requires=['pandas', 'numpy', 'yfinance', 'scipy', 'plotly', 'matplotlib', 'yahooquery']
 )
