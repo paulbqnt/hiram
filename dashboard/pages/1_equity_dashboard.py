@@ -1,14 +1,14 @@
 import streamlit as st
-from streamlit_extras.add_vertical_space import add_vertical_space
 import pandas as pd
 import yfinance as yf
 import numpy as np
 import plotly.express as px
 
 st.set_page_config(
-    page_title="Hiram Dashboard",
-    page_icon="chart_with_upwards_trend"
+    page_title="Hiram Dashboard - Equity",
+    page_icon="chart_with_upwards_trend",
 )
+
 
 @st.cache_data
 def df_to_cumulative_returns(input_df):
@@ -24,21 +24,17 @@ class MyStreamlitEquityDashboard:
         self.start_date = pd.to_datetime('2023-01-01')
         self.today_date = pd.to_datetime('today')
         self.ticker_list = list(pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]["Symbol"])
-        # self.df_raw = yf.download(self.start_date, self.today_date)['Adj Close']
         self.selected_stocks = []
 
     def run(self):
         st.title(self.title)
-
-        # self.sidebar()
         self.main_content()
 
     def sidebar(self):
         st.sidebar.header("Sidebar")
-        # Add widgets and controls to the sidebar here
 
     def main_content(self):
-        # st.subheader('Underlying Dashboard')
+        st.markdown("<h6 align='left'>Made by Paul Boquant</h6>", unsafe_allow_html=True)
 
         cols = st.columns([2, 1, 2])
         start = cols[0].date_input('Start', value=pd.to_datetime('2023-01-01'))
@@ -52,15 +48,13 @@ class MyStreamlitEquityDashboard:
                 st.info(" Select one or several stocks")
                 st.stop()
 
-        trading_days = st.number_input("Select the number of days for volatility calculation", min_value=10)
+        trading_days = st.number_input("Select the number of days for volatility calculation", min_value=30)
         nice_dropdown = " ".join(dropdown)
         self.selected_stocks = dropdown
         print(f"self.selected_stocks:  {self.selected_stocks}")
         df_raw = yf.download(dropdown, start, end)
 
-        # st.subheader('Stock price of {}'.format(nice_dropdown))
         df_returns = df_to_cumulative_returns(df_raw['Adj Close'])
-        # st.line_chart(df_returns)
 
         fig = px.line(
             df_raw['Adj Close'],
@@ -69,15 +63,12 @@ class MyStreamlitEquityDashboard:
         fig.update_traces(textposition="top center")
         st.plotly_chart(fig, use_container_width=True)
 
-
-
         fig = px.line(
             df_returns,
             title=f"<b>Cumulative Returns of {nice_dropdown}</b>"
         )
         fig.update_traces(textposition="top center")
         st.plotly_chart(fig, use_container_width=True)
-
 
         st.subheader('Volume of {}'.format(nice_dropdown))
         df_volume = df_raw['Volume']
@@ -86,26 +77,6 @@ class MyStreamlitEquityDashboard:
         st.subheader('Volatility of {}'.format(str(nice_dropdown)))
         df_volatility = df_raw['Close'].rolling(window=trading_days).std() * np.sqrt(trading_days)
         st.line_chart(df_volatility[trading_days:])
-
-
-        # if dropdown:
-        #     nice_dropdown = " ".join(dropdown)
-        #     self.selected_stocks = dropdown
-        #     print(f"self.selected_stocks:  {self.selected_stocks}")
-        #     df_raw = yf.download(dropdown, start, end)
-        #     print(start, end)
-        #
-        #     st.subheader('Returns of {}'.format(nice_dropdown))
-        #     df_returns = df_to_cumulative_returns(df_raw['Adj Close'])
-        #     st.line_chart(df_returns)
-        #
-        #     st.subheader('Volume of {}'.format(nice_dropdown))
-        #     df_volume = df_raw['Volume']
-        #     st.line_chart(df_volume)
-        #
-        #     st.subheader('Volatility of {}'.format(str(nice_dropdown)))
-        #     df_volatility = df_raw['Close'].rolling(window=trading_days).std() * np.sqrt(trading_days)
-        #     st.line_chart(df_volatility[trading_days:])
 
 
 my_app = MyStreamlitEquityDashboard()

@@ -2,8 +2,7 @@ from facade import OptionFacade
 from market_data import MarketData
 
 from payoff import VanillaPayoff, StrategyPayoff, call_payoff, put_payoff, strangle_payoff, straddle_payoff, bull_spread_payoff, bear_spread_payoff, butterfly_spread_payoff
-from engine import BlackScholesPricingEngine, BinomialPricingEngine, BlackScholesPricer, AmericanBinomialPricer, EuropeanBinomialPricer
-
+from engine import BlackScholesPricingEngine, BinomialPricingEngine, BlackScholesPricer, AmericanBinomialPricer, EuropeanBinomialPricer, MonteCarloPricingEngine, MonteCarloPricerVanilla
 
 if __name__ == "__main__":
 
@@ -16,11 +15,19 @@ if __name__ == "__main__":
     BS_engine_call = BlackScholesPricingEngine("call", BlackScholesPricer)
     BS_engine_put = BlackScholesPricingEngine("put", BlackScholesPricer)
 
+
     BS_call = OptionFacade(call, BS_engine_call, data)
     BS_put = OptionFacade(put, BS_engine_put, data)
 
     print(f"call: {BS_call.price()}")
     print(f"put: {BS_put.price()}")
+
+
+    MC_engine = MonteCarloPricingEngine(1000, MonteCarloPricerVanilla)
+    MC_option = OptionFacade(call, MC_engine, data)
+    print(f"MC call {MC_option.price()}")
+
+
 
     # STRADDLE
     data = MarketData(spot=100, rate=0.05, volatility=.3, dividend=0)

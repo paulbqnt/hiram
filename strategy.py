@@ -23,4 +23,3 @@ bs_option = OptionFacade(call, bs_engine, data)
 
 def pricer_straddle(option, engine, data):
     bs_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
-

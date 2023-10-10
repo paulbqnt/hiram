@@ -1,3 +1,3 @@
 - replace volume by USD Volume
 - add equity ratios
-- add Facade pricing
+- change on_change feature of ticker box to react only to "enter"
