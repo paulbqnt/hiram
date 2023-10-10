@@ -5,6 +5,6 @@ setup(
    description='An Option Pricing Library',
    author='Paul Boquant',
    author_email='paul@boquant.net',
-   packages=['pandas', 'numpy', 'pydantic', 'scipy', 'yahooquery', 'streamlit', 'streamlit_extras', 'plotly', 'matplotlib', 'yfinance'],  #same as name
+   packages=['hiram'],  #same as name
    install_requires=['wheel', 'bar', 'greek'], #external packages as dependencies
 )
