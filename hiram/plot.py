@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
 import plotly.graph_objs as go
+from market_data import MarketData
+from payoff import VanillaPayoff, call_payoff, put_payoff
 
 from hiram.engine import BlackScholesPricingEngine, BlackScholesPricer
 from hiram.facade import OptionFacade
-from market_data import MarketData
-from payoff import VanillaPayoff, call_payoff, put_payoff
 
 
 class Plot:
@@ -33,8 +33,7 @@ def vanilla_payoff(facade):
 
 def plot_payoff_vanilla(facade, type_plot):
     '''Get an option facade and a type_plot as input and return a vanilla plot payoff'''
-    match type_plot:
-        case "black_scholes":
+    if type_plot == "black_scholes":
             st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot)
             payoff_option = vanilla_payoff(facade)
             mask = payoff_option >= 0
@@ -45,7 +44,7 @@ def plot_payoff_vanilla(facade, type_plot):
             fig.add_trace(go.Scatter(y=payoff_below, fill='tozeroy', fillcolor="rgba(242, 38, 19, 0.5)", mode='none'))
             fig.update_traces(showlegend=False)
             return fig
-        case "monte_carlo":
+    elif type_plot == "monte_carlo":
             st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot)
             payoff_option = vanilla_payoff(facade)
             mask = payoff_option >= 0
@@ -137,18 +136,16 @@ def plot_greeks(facade, is_call, type_plot):
         theta_values.append(pricing_output["theta"])
         vega_values.append(pricing_output["vega"])
         rho_values.append(pricing_output["rho"])
-    match type_plot:
-        case "delta":
-            selected_greek = delta_values
-        case "gamma":
-            selected_greek = gamma_values
-        case "theta":
-            selected_greek = theta_values
-        case "vega":
-            selected_greek = vega_values
-        case "rho":
-            selected_greek = rho_values
-        case _:raise ValueError(f'"{type_plot}" is not a correct greek')
+    if type_plot == "delta":
+        selected_greek = delta_values
+    if type_plot == "gamma":
+        selected_greek = gamma_values
+    if type_plot == "theta":
+        selected_greek = theta_values
+    if type_plot == "vega":
+        selected_greek = vega_values
+    if type_plot == "rho":
+        selected_greek = rho_values
 
     fig = px.line(
         x = st,
@@ -158,25 +155,6 @@ def plot_greeks(facade, is_call, type_plot):
     )
     fig.update_layout(title_text=f'{type_plot.capitalize()}', title_x=0.5)
     return fig
-
-
-
-
-
-    # if type(facade.option.payoff) == call_payoff:
-    #     payoff_type = "call"
-    #     option_output = VanillaPayoff(expiry=.2, strike=100, payoff=call_payoff)
-    # elif type(facade.option.payoff) == "put":
-    #     payoff_type = "put"
-    #     option_output = VanillaPayoff(expiry=.2, strike=100, payoff=put_payoff)
-
-
-
-
-
-
-
-
 
 
 
