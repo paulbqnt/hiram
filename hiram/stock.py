@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
-from yahooquery import Ticker
-import pandas as pd
 from typing import Optional
+
 import numpy as np
+import pandas as pd
+from yahooquery import Ticker
 
 
 class Stock:

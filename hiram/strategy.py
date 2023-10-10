@@ -1,8 +1,9 @@
-from old_payoff import VanillaPayoff, call_payoff, put_payoff
+# from old_payoff import VanillaPayoff, call_payoff, put_payoff
+
+from market_data import MarketData
 
 from hiram.engine import BlackScholesPricingEngine, BlackScholesPricer
 from hiram.facade import OptionFacade
-from market_data import MarketData
 
 
 class Strategy:

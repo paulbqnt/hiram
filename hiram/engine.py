@@ -1,7 +1,7 @@
-import numpy as np
-import engine_helper as eh
-from scipy.stats import binom, norm
 import abc
+
+import engine_helper as eh
+import numpy as np
 
 
 class PricingEngine(object, metaclass=abc.ABCMeta):
