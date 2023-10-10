@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
 import plotly.graph_objs as go
-from market_data import MarketData
-from payoff import VanillaPayoff, call_payoff, put_payoff
+from hiram.market_data import MarketData
+from hiram.payoff import VanillaPayoff, call_payoff, put_payoff
 
 from hiram.engine import BlackScholesPricingEngine, BlackScholesPricer
 from hiram.facade import OptionFacade
