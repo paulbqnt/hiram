@@ -17,4 +17,5 @@ zipp~=3.17.0
 plotly~=5.17.0
 matplotlib~=3.7.2
 streamlit~=1.27.2
+streamlit_extras~=0.3.4
 yfinance~=0.2.31
