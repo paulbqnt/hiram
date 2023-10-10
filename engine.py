@@ -256,9 +256,10 @@ def BlackScholesPricer(pricing_engine, option, data):
 
 
 class MonteCarloPricingEngine(PricingEngine):
-    def __init__(self, iterations, pricer):
+    def __init__(self, iterations, pricer, payoff_type=None):
         self.__iterations = iterations
         self.__pricer = pricer
+        self.payoff_type = payoff_type
 
     @property
     def iterations(self):
