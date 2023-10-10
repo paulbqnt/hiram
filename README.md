@@ -4,19 +4,19 @@
 ---
 ## How to use it
 
-### Let's price a Call option 
+### Let's price a Call option
+
 ```python 
-from facade import OptionFacade
-from market_data import MarketData
-from payoff import VanillaPayoff, call_payoff
-from engine import BlackScholesPricingEngine, BlackScholesPricer
+from hiram.facade import OptionFacade
+from hiram.market_data import MarketData
+from hiram.payoff import VanillaPayoff, call_payoff
+from hiram.engine import BlackScholesPricingEngine, BlackScholesPricer
 
 data = MarketData(spot=100, rate=0.05, volatility=.35, dividend=0)
 
 call = VanillaPayoff(expiry=.2, strike=100, payoff=call_payoff)
 
 BS_engine_call = BlackScholesPricingEngine("call", BlackScholesPricer)
-
 
 BS_call = OptionFacade(call, BS_engine_call, data)
 print(f"call: {BS_call.price()}")
