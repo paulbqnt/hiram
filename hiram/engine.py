@@ -1,6 +1,6 @@
 import abc
 
-import engine_helper as eh
+import hiram.engine_helper as eh
 import numpy as np
 
 
