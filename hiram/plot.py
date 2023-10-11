@@ -40,8 +40,8 @@ def plot_payoff_vanilla(facade, type_plot):
             payoff_above = np.where(mask, payoff_option, 0)
             payoff_below = np.where(mask, 0, payoff_option)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(y=payoff_above, fill='tozeroy', fillcolor="rgba(147, 250, 165, 0.5)", mode='none'))
-            fig.add_trace(go.Scatter(y=payoff_below, fill='tozeroy', fillcolor="rgba(242, 38, 19, 0.5)", mode='none'))
+            fig.add_trace(go.Scatter(x=st, y=payoff_above, fill='tozeroy', fillcolor="rgba(147, 250, 165, 0.5)", mode='none'))
+            fig.add_trace(go.Scatter(x=st, y=payoff_below, fill='tozeroy', fillcolor="rgba(242, 38, 19, 0.5)", mode='none'))
             fig.update_traces(showlegend=False)
             return fig
     elif type_plot == "monte_carlo":
