@@ -42,11 +42,11 @@ def delta_put_helper(rate, expiry, d1):
 
 
 def rho_call_helper(strike, expiry, rate, d2):
-    return strike * expiry * np.exp(-rate * expiry) * norm.pdf(d2) * 0.01
+    return strike * expiry * np.exp(-rate * expiry) * norm.cdf(d2) * 0.01
 
 
 def rho_put_helper(strike, expiry, rate, d2):
-    return -strike * expiry * np.exp(-rate * expiry) * norm.pdf(-d2) * 0.01
+    return -strike * expiry * np.exp(-rate * expiry) * norm.cdf(-d2) * 0.01
 
 
 def theta_call_helper(spot, d1, d2, volatility, expiry, rate, strike):
