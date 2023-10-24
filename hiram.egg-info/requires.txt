@@ -1,7 +1,0 @@
-pandas
-numpy
-yfinance
-scipy
-plotly
-matplotlib
-yahooquery
