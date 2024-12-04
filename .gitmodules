@@ -1,0 +1,3 @@
+[submodule "pricer"]
+	path = pricer
+	url = git@github.com:paulbqnt/pricer.git
