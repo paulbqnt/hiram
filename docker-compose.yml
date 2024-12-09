@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  pricer:
+    build:
+      context: ./pricer
+    container_name: pricer
+    ports:
+      - "8081:8081"
+    restart: always  # Remove the entrypoint line
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pricer
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: always
