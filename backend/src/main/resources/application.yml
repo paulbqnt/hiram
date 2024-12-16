@@ -1,0 +1,11 @@
+example:
+  backend:
+    buildNumber: 3.0-yml
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+example:
+  backend:
+    buildNumber: 4.0-yml
