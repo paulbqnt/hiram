@@ -19,10 +19,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./backend/src:/app/src  # Only mount source code, not the entire app directory
     environment:
-      - JAVA_OPTS="-Xmx512m"  # You can add JVM options here if needed
+      - JAVA_OPTS="-Xmx512m"  # JVM options for memory and performance tuning
+    # No volumes are mounted to avoid overwriting built artifacts during runtime
 
   pricer:
     build:
@@ -30,5 +29,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8081:8080"  # Map host port 8081 to container port 8080
-    volumes:
-      - ./pricer/src:/app/src  # Only mount source code, not the entire app directory
+    environment:
+      - NODE_ENV=production  # Example environment variable for the pricer service

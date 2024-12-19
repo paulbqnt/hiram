@@ -21,8 +21,9 @@ RUN ls -l /app/target
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-# Explicitly copy the JAR by name
-COPY --from=build /app/target/*.jar app.jar
+# Explicitly copy the JAR file
+COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
+
 # Expose the port the application runs on
 EXPOSE 8080
 
