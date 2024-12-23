@@ -7,15 +7,58 @@
   <version>1.0-SNAPSHOT</version>
   <name>hiram Maven Webapp</name>
   <url>http://maven.apache.org</url>
-  <dependencies>
+
+    <properties>
+        <kotlin.version>2.1.0</kotlin.version>
+    </properties>
+
+
+    <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
   <build>
     <finalName>hiram</finalName>
+      <plugins>
+          <plugin>
+              <groupId>org.jetbrains.kotlin</groupId>
+              <artifactId>kotlin-maven-plugin</artifactId>
+              <version>${kotlin.version}</version>
+              <executions>
+                  <execution>
+                      <id>compile</id>
+                      <phase>compile</phase>
+                      <goals>
+                          <goal>compile</goal>
+                      </goals>
+                  </execution>
+                  <execution>
+                      <id>test-compile</id>
+                      <phase>test-compile</phase>
+                      <goals>
+                          <goal>test-compile</goal>
+                      </goals>
+                  </execution>
+              </executions>
+              <configuration>
+                  <jvmTarget>1.8</jvmTarget>
+              </configuration>
+          </plugin>
+      </plugins>
   </build>
 </project>

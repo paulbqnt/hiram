@@ -1,13 +1,6 @@
 # Hiram
 
-### Stack: Kotlin/Spring Boot, React/Typescript
-
-
-## Backend
-
-## Pricer
-
-## Frontend
-
-
-## Misc
+## Documentation
+- [MVP Document](docs/MVP.md)
+- [API Specification](docs/api-spec.md) (coming soon)
+- [Deployment](docs/deployment.md) (coming soon)
