@@ -2,13 +2,13 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-const Home: React.FC = () => {
+const NotFound: React.FC = () => {
     return (
         <div>
-            <h1>Home</h1>
+            <h1>Not Found</h1>
             <Outlet />
         </div>
     );
 };
 
-export default Home;
+export default NotFound;
