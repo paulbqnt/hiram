@@ -1,14 +1,14 @@
-// src/pages/Signup.tsx
+// src/pages/Portfolios.tsx
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-const Signup: React.FC = () => {
+const Portfolios: React.FC = () => {
     return (
         <div>
-            <h1>Signup</h1>
+            <h1>Portfolios</h1>
             <Outlet />
         </div>
     );
 };
 
-export default Signup;
+export default Portfolios;

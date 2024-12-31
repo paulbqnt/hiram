@@ -1,0 +1,18 @@
+meta {
+  name: Get All Books
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8080/getAllBooks
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Book1",
+    "author": "Author1" 
+  }
+}
