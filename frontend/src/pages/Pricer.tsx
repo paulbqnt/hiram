@@ -68,9 +68,8 @@ const Pricer: React.FC = () => {
                                                 </FormControl>
                                                 <SelectContent>
                                                     <SelectItem value="option">Option</SelectItem>
-                                                    <SelectItem value="future">Future</SelectItem>
-                                                    <SelectItem value="forward">Forward</SelectItem>
-                                                    <SelectItem value="swap">Swap</SelectItem>
+                                                    <SelectItem value="structured products">Future</SelectItem>
+
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage/>
