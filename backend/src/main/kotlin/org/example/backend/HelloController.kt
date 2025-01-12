@@ -16,23 +16,6 @@ class HelloController {
     @PersistenceContext
     lateinit var entityManager: EntityManager
 
-    @GetMapping("/hello")
-    fun hello(): String {
-        logger.trace("TRACE line")
-        logger.debug("DEBUG line")
-        logger.info("info line")
-        logger.warn("warn line")
-        logger.error("error line")
-
-        logger.info("INFO {} {}", 1, "abc")
-        try {
-            val x = 1 / 0
-        } catch (e: Throwable) {
-            logger.error("ERR failed to compute x", e)
-        }
-
-        return "Hello World!"
-    }
 
     @GetMapping("/db-check")
     fun dbCheck(): String {

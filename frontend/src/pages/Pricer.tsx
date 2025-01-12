@@ -25,6 +25,11 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select";
+import {DatePicker} from "@/components/ui/date-picker.tsx";
+
+function setStartDate(date) {
+    
+}
 
 const Pricer: React.FC = () => {
     const form = useForm({
@@ -41,6 +46,7 @@ const Pricer: React.FC = () => {
         console.log('Form data:', data);
     };
 
+    let startDate;
     return (
         <div>
             <div className="h-screen w-screen flex justify-center items-center">
@@ -68,70 +74,88 @@ const Pricer: React.FC = () => {
                                                 </FormControl>
                                                 <SelectContent>
                                                     <SelectItem value="option">Option</SelectItem>
-                                                    <SelectItem value="structured products">Future</SelectItem>
-
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
+
 
                                 {/* Asset Select Field */}
-                                <FormField
-                                    control={form.control}
-                                    name="asset"
-                                    render={({field}) => (
-                                        <FormItem>
-                                            <FormLabel>Asset</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select asset"/>
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="equity">Equity</SelectItem>
-                                                    <SelectItem value="fx">FX</SelectItem>
-                                                    <SelectItem value="commodity">Commodity</SelectItem>
-                                                    <SelectItem value="rates">Rates</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage/>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Row of Two Fields */}
                                 <div className="flex space-x-4">
                                     {/* Expiry Field */}
                                     <FormField
-                                        name="expiry"
                                         control={form.control}
+                                        name="assetType"
                                         render={({field}) => (
                                             <FormItem className="flex-1">
-                                                <FormLabel>Expiry</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Select Expiry" {...field} />
-                                                </FormControl>
+                                                <FormLabel>Asset Type</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select asset Type"/>
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="stock">Stock</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                                 <FormMessage/>
                                             </FormItem>
                                         )}
                                     />
                                     {/* Price Field */}
                                     <FormField
-                                        name="price"
+                                        name="asset"
                                         control={form.control}
                                         render={({field}) => (
                                             <FormItem className="flex-1">
-                                                <FormLabel>Date</FormLabel>
+                                                <FormLabel>Asset</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="01/01/2025" {...field} />
+                                                    <Input placeholder="AAPL" {...field} />
                                                 </FormControl>
                                                 <FormMessage/>
                                             </FormItem>
                                         )}
                                     />
+                                </div>
+
+                                {/* Row of Two Fields */}
+                                <div className="flex space-x-4 w-full">
+                                    {/* Expiry Field */}
+                                    <FormField
+                                        name="expiry"
+                                        control={form.control}
+                                        render={({field}) => (
+                                            <FormItem className="flex-1">
+                                                <FormLabel>Maturity</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Select Maturity (in years) ex: 2.0"
+                                                        {...field}
+                                                        className="w-full"  // Ensure the input takes full width of the container
+                                                    />
+                                                </FormControl>
+                                                <FormMessage/>
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    {/* Date Field */}
+                                    <FormItem className="flex-1">
+                                        <FormLabel>Expiry Date</FormLabel>
+                                        <FormControl>
+                                            <DatePicker
+                                                selected={startDate}
+                                                onChange={(date) => {
+                                                    setStartDate(date);
+                                                }}
+                                                className="w-full"  // Ensure the date picker takes full width of the container
+                                            />
+                                        </FormControl>
+                                        <FormMessage/>
+                                    </FormItem>
                                 </div>
                                 {/* Row of Two Fields */}
                                 <div className="flex space-x-4">
@@ -157,7 +181,7 @@ const Pricer: React.FC = () => {
                                             <FormItem className="flex-1">
                                                 <FormLabel>Volatility</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="01/01/2025" {...field} />
+                                                    <Input placeholder="0.20" {...field} />
                                                 </FormControl>
                                                 <FormMessage/>
                                             </FormItem>
@@ -229,51 +253,51 @@ const Pricer: React.FC = () => {
                                 </div>
 
                                 {/* Row of Two Fields */}
-                                <div className="flex space-x-4">
-                                    {/* Strike Field */}
-                                    <FormField
-                                        control={form.control}
-                                        name="notional"
-                                        render={({field}) => (
-                                            <FormItem className="flex-1">
-                                                <FormLabel>Notional</FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select asset"/>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="usd">USD</SelectItem>
-                                                        <SelectItem value="eur">EUR</SelectItem>
-                                                        <SelectItem value="chf">CHF</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    {/* Price Field */}
-                                    <FormField
-                                        name="price"
-                                        control={form.control}
-                                        render={({field}) => (
-                                            <FormItem className="flex-1">
-                                                <FormLabel>Amount</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="0.02 ITMF" {...field} />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
+                                {/*<div className="flex space-x-4">*/}
+                                {/*    /!* Strike Field *!/*/}
+                                {/*    <FormField*/}
+                                {/*        control={form.control}*/}
+                                {/*        name="notional"*/}
+                                {/*        render={({field}) => (*/}
+                                {/*            <FormItem className="flex-1">*/}
+                                {/*                <FormLabel>Notional</FormLabel>*/}
+                                {/*                <Select onValueChange={field.onChange} defaultValue={field.value}>*/}
+                                {/*                    <FormControl>*/}
+                                {/*                        <SelectTrigger>*/}
+                                {/*                            <SelectValue placeholder="Select currency"/>*/}
+                                {/*                        </SelectTrigger>*/}
+                                {/*                    </FormControl>*/}
+                                {/*                    <SelectContent>*/}
+                                {/*                        <SelectItem value="usd">USD</SelectItem>*/}
+                                {/*                        <SelectItem value="eur">EUR</SelectItem>*/}
+                                {/*                        <SelectItem value="chf">CHF</SelectItem>*/}
+                                {/*                    </SelectContent>*/}
+                                {/*                </Select>*/}
+                                {/*                <FormMessage/>*/}
+                                {/*            </FormItem>*/}
+                                {/*        )}*/}
+                                {/*    />*/}
+                                {/*    /!* Price Field *!/*/}
+                                {/*    <FormField*/}
+                                {/*        name="price"*/}
+                                {/*        control={form.control}*/}
+                                {/*        render={({field}) => (*/}
+                                {/*            <FormItem className="flex-1">*/}
+                                {/*                <FormLabel>Amount</FormLabel>*/}
+                                {/*                <FormControl>*/}
+                                {/*                    <Input placeholder="200,000" {...field} />*/}
+                                {/*                </FormControl>*/}
+                                {/*                <FormMessage/>*/}
+                                {/*            </FormItem>*/}
+                                {/*        )}*/}
+                                {/*    />*/}
+                                {/*</div>*/}
                                 <FormField
                                     control={form.control}
                                     name="model"
                                     render={({field}) => (
                                         <FormItem>
-                                            <FormLabel>Model</FormLabel>
+                                            <FormLabel>Model/Methodology</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
