@@ -14,8 +14,8 @@ class MetaDataController {
         return Constants.DERIVATIVE_TYPES
     }
 
-    @GetMapping("/pricing-models")
-    fun getPricingModels(): List<String> {
-        return Constants.PRICING_MODEL
-    }
+//    @GetMapping("/pricing-models")
+//    fun getPricingModels(): List<String> {
+//        return Constants.PRICING_MODEL
+//    }
 }
