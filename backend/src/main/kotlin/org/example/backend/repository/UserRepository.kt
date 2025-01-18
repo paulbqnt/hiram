@@ -2,35 +2,41 @@ package org.example.backend.repository
 
 import org.example.backend.model.Role
 import org.example.backend.model.User
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-class UserRepository {
+class UserRepository(
+    private val encoder: PasswordEncoder,
+) {
 
     private val users = mutableListOf<User>(
         User(
             id = UUID.randomUUID(),
             email = "email-1@gmail.com",
-            password = "pass1",
+            password = encoder.encode("pass1"),
             role = Role.USER
         ),
         User(
             id = UUID.randomUUID(),
             email = "email-2@gmail.com",
-            password = "pass2",
+            password = encoder.encode("pass2"),
             role = Role.USER
         ),
         User(
             id = UUID.randomUUID(),
             email = "email-3@gmail.com",
-            password = "pass3",
+            password = encoder.encode("pass3"),
             role = Role.ADMIN
         ),
     )
 
-    fun save(user: User): Boolean =
-        users.add(user)
+    fun save(user: User): Boolean {
+        val updated = user.copy(password = encoder.encode(user.password))
+        return users.add(updated)
+    }
+
 
     fun findByEmail(email: String): User? =
         users

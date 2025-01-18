@@ -17,6 +17,7 @@ class TokenService(
         jwtProperties.key.toByteArray()
     )
 
+
     fun generate(
         userDetails: UserDetails,
         expirationDate: Date,
