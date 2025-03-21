@@ -1,5 +1,5 @@
 [project]
-name = "hiram-pricing"
+name = "hiram_pricing"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,7 +8,7 @@ authors = [
     { name = "Paul Boquant"}
 ]
 dependencies = [
-    "matplotlib>=3.10.1",
+    "matplotlib>=3.10.1"    ,
     "numpy>=2.2.4",
     "pandas>=2.2.3",
     "pydantic>=2.10.6",
