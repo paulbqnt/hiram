@@ -8,7 +8,7 @@ authors = [
     { name = "Paul Boquant"}
 ]
 dependencies = [
-    "matplotlib>=3.10.1"    ,
+    "matplotlib>=3.10.1",
     "numpy>=2.2.4",
     "pandas>=2.2.3",
     "pydantic>=2.10.6",
