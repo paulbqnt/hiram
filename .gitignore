@@ -9,8 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-__pycache__/
-dist/
-build/
+
 *.egg-info/
 .env
