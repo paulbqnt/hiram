@@ -1,0 +1,17 @@
+[project]
+name = "hiram-pricing"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Paul Boquant"}
+]
+dependencies = [
+    "matplotlib>=3.10.1",
+    "numpy>=2.2.4",
+    "pandas>=2.2.3",
+    "pydantic>=2.10.6",
+    "scipy>=1.15.2",
+    "yfinance>=0.2.55",
+]
