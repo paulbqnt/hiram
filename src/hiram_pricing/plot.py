@@ -4,9 +4,9 @@ import plotly.express as px
 import plotly.graph_objs as go
 
 from src.hiram_pricing.market_data import MarketData
-from src.hiram_pricing.payoff import VanillaPayoff, call_payoff, put_payoff
-from src.hiram_pricing.engine import BlackScholesPricingEngine, BlackScholesPricer
-from src.hiram_pricing.facade import OptionFacade
+from payoff import VanillaPayoff, call_payoff, put_payoff
+from engine import BlackScholesPricingEngine, BlackScholesPricer
+from facade import OptionFacade
 
 class Plot:
     def __init__(self, facade : OptionFacade):
