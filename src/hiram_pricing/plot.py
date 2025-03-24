@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objs as go
 
 from src.hiram_pricing.market_data import MarketData
-from payoff import VanillaPayoff, call_payoff, put_payoff
+from payoff import CallPayoff, PutPayoff
 from engine import BlackScholesPricingEngine, BlackScholesPricer
 from facade import OptionFacade
 
@@ -111,10 +111,10 @@ def plot_greeks(facade, is_call, type_plot):
     rho_values = []
 
     if is_call == 1:
-        option_output = VanillaPayoff(expiry=facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+        option_output = CallPayoff(expiry=facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
         payoff_type = "call"
     elif is_call == 0:
-        option_output = VanillaPayoff(expiry=.2, strike=100, payoff=put_payoff)
+        option_output = PutPayoff(expiry=.2, strike=100, payoff=put_payoff)
         payoff_type = "put"
 
     engine = BlackScholesPricingEngine(payoff_type, BlackScholesPricer)
@@ -160,8 +160,8 @@ def plot_greeks(facade, is_call, type_plot):
 def plot_payoff_straddle(facade):
     st = np.arange(0.5 * facade.data.spot, 1.5 * facade.data.spot) \
 
-    call_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
-    put_temp = VanillaPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=put_payoff)
+    call_temp = CallPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=call_payoff)
+    put_temp = PutPayoff(expiry =facade.option.expiry, strike=facade.option.strike, payoff=put_payoff)
 
     BS_call_engine = BlackScholesPricingEngine("call", BlackScholesPricer)
     BS_put_engine = BlackScholesPricingEngine("put", BlackScholesPricer)
