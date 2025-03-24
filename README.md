@@ -45,27 +45,32 @@ market = MarketData(
 ### 2. Create a payoff object
 
 ```python
-from payoff import VanillaPayoff, call_payoff
+from payoff import CallPayoff
 
-option = VanillaPayoff(
-    expiry=1.0,        # 1 year to expiration
-    strike=105.0,      # Strike price
-    payoff=call_payoff # Use the predefined call_payoff function
+payoff = CallPayoff(strike=105.0)
+```
+
+### 3. Create the option object
+
+```python
+from option import VanillaOption
+
+option = VanillaOption(
+    payoff=payoff,
+    expiry=1.0
 )
 ```
 
-### 3. Choose a pricing engine
+
+### 4. Choose a pricing engine
 
 ```python
 from engine import BlackScholesPricingEngine, BlackScholesPricer
 
-pricing_engine = BlackScholesPricingEngine(
-    payoff_type="call",         # Type of option
-    pricer=BlackScholesPricer   # Pricer
-)
+pricing_engine = BlackScholesPricingEngine(pricer=BlackScholesPricer)   # Pricer
 ```
 
-### 4. Create the option facade and price it
+### 5. Create the option facade and price it
 
 ```python
 from facade import OptionFacade
