@@ -1,8 +1,8 @@
 import abc
 import numpy as np
 
-from src.hiram_pricing import engine_helper as eh
-from payoff import CallPayoff, PutPayoff
+from . import engine_helper as eh
+from .payoff import CallPayoff, PutPayoff
 
 
 class PricingEngine(object, metaclass=abc.ABCMeta):
