@@ -21,3 +21,11 @@ class EuropeanOption(VanillaOption):
 
 class AmericanOption(VanillaOption):
     pass
+
+
+class OptionStrategy(Option):
+    def __init__(self, options_list):
+        self.options = options_list
+
+    def payoff(self, spot_price):
+        return sum(option.payoff(spot_price) for option in self.options)
