@@ -2,6 +2,7 @@ import abc
 import numpy as np
 
 from . import engine_helper as eh
+from .models import PricingResult, Greeks
 from .payoff import CallPayoff, PutPayoff, CompositePayoff, BarrierDecorator
 
 
@@ -77,7 +78,20 @@ def BlackScholesPricer(pricing_engine, option, data):
     else:
         raise ValueError("Unsupported payoff type")
 
-    return {"value": value, "delta": delta, "gamma": gamma, "vega": vega, "theta": theta, "rho": rho}
+    # return {"value": value, "delta": delta, "gamma": gamma, "vega": vega, "theta": theta, "rho": rho}
+    return PricingResult(
+        value=value,
+        greeks=Greeks(
+            delta=delta,
+            gamma=gamma,
+            vega=vega,
+            theta=theta,
+            rho=rho
+        )
+    ).to_json()
+
+
+
 
 
 def BarrierOptionPricer(pricing_engine, option, data):
