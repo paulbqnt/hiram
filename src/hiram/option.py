@@ -1,7 +1,16 @@
 
 
 class Option:
+    """Base class for all option types."""
+
     def __init__(self, payoff, expiry):
+        """
+        Initialize an option.
+
+        Args:
+            payoff: The payoff object defining the option's payout structure
+            expiry: Time to expiration in years
+        """
         self.payoff = payoff
         self.expiry = expiry
 
@@ -21,11 +30,3 @@ class EuropeanOption(VanillaOption):
 
 class AmericanOption(VanillaOption):
     pass
-
-
-class OptionStrategy(Option):
-    def __init__(self, options_list):
-        self.options = options_list
-
-    def payoff(self, spot_price):
-        return sum(option.payoff(spot_price) for option in self.options)

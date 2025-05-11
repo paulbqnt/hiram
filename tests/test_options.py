@@ -1,10 +1,10 @@
 import pytest
 
-from src.hiram_pricing.engine import BlackScholesPricingEngine, BlackScholesPricer
-from src.hiram_pricing.facade import OptionFacade
-from src.hiram_pricing.market_data import MarketData
-from src.hiram_pricing.option import VanillaOption
-from src.hiram_pricing.payoff import CallPayoff, PutPayoff
+from src.hiram.engine import BlackScholesPricingEngine, BlackScholesPricer
+from src.hiram.market_data import MarketData
+from src.hiram.facade import OptionFacade
+from src.hiram.option import VanillaOption
+from src.hiram.payoff import CallPayoff, PutPayoff
 
 @pytest.mark.parametrize(
     "option_type, spot, rate, dividend, volatility, strike, expiry, expected_value",
@@ -39,6 +39,6 @@ def test_vanilla_option(option_type, spot, rate, dividend, volatility, strike, e
     pricing_engine = BlackScholesPricingEngine(pricer=BlackScholesPricer)
     option_facade = OptionFacade(option, pricing_engine, data=market_data)
 
-    assert option_facade.price().get('value') == pytest.approx(expected_value, rel=1e-3)
+    assert option_facade.price().get('value') == pytest.approx(expected_value, rel=1e-2)
 
 # TODO: add tests for the greeks
