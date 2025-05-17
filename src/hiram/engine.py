@@ -4,6 +4,7 @@ from typing import Dict, Any
 import numpy as np
 
 from . import engine_helper as eh
+from .pricers import OptionPricer
 from .market_data import MarketData
 from .models import PricingResult, Greeks
 from .option import Option
@@ -12,6 +13,10 @@ from .payoff import CallPayoff, PutPayoff
 
 class PricingEngine(object, metaclass=abc.ABCMeta):
     """Abstract base class for all pricing engines."""
+    @classmethod
+    def __pydantic_init_subclass__(cls):
+        OptionPricer.model_rebuild()
+
     @abc.abstractmethod
     def calculate(self):
         """
@@ -27,7 +32,7 @@ class PricingEngine(object, metaclass=abc.ABCMeta):
         pass
 
 
-class BinomialPricingEngine(PricingEngine):
+class BinomialEngine(PricingEngine):
     def __init__(self, steps, pricer):
         self.__steps = steps
         self.__pricer = pricer
@@ -54,7 +59,7 @@ def AmericanBinomialPricer(pricing_engine, option, data):
     pass
 
 
-class BlackScholesPricingEngine(PricingEngine):
+class BlackScholesEngine(PricingEngine):
     """Pricing engine that uses Black-Scholes analytic formulas."""
     def __init__(self, pricer):
         self.__pricer = pricer
@@ -213,7 +218,7 @@ def CompositeOptionPricer(pricing_engine, option, data):
         "rho": total_rho
     }
 
-class MonteCarloPricingEngine(PricingEngine):
+class MonteCarloEngine(PricingEngine):
     def __init__(self, iterations, pricer, payoff_type=None):
         self.__iterations = iterations
         self.__pricer = pricer
@@ -251,7 +256,7 @@ def MonteCarloPricerVanilla(engine, option, data):
 
 
 def MonteCarloPricerBarrier(
-        pricing_engine: MonteCarloPricingEngine,
+        pricing_engine: MonteCarloEngine,
         option: Option,
         data: MarketData
 ) -> Dict[str, Any]:

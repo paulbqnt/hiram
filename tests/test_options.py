@@ -2,7 +2,7 @@ import pytest
 
 from src.hiram.engine import BlackScholesPricingEngine, BlackScholesPricer
 from src.hiram.market_data import MarketData
-from src.hiram.facade import OptionFacade
+from src.hiram.pricers import OptionFacade
 from src.hiram.option import VanillaOption
 from src.hiram.payoff import CallPayoff, PutPayoff
 
